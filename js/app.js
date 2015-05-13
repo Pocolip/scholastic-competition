@@ -88,25 +88,80 @@ angular.module('scholastic-competition', ['ngRoute'])
 {
 
 })
-.controller('TeacherProfileCtrl', function($scope)
+.controller('TeacherProfileCtrl', function($scope, $http)
 {
 
     // $scope.
 
 
-    $scope.createActivity = function()
+    $scope.eventTitle = "";
+    $scope.eventDescription = "";
+    $scope.eventRequirements = "";
+    $scope.eventGrade = "";
+
+    $scope.createEvent = function()
     {
 
+        console.log("Creating Event");
+            var date = new Date();
+            var data = {
+
+                name: $scope.eventTitle,
+                description: $scope.eventDescription,
+                grade: $scope.eventGrade,
+                requirements: $scope.eventRequirements,
+                date: date
+                // school: $scope.school
+            }
+            var request = {
+
+                url: 'http://104.131.167.77:3000/event', 
+                method: 'POST',
+                data: data
+            }
+            console.log(data);
+
+
+            return $http(request)
+            .then(function(response)
+            {   
+                console.log(response);
+
+                if(response.status == 201 || response.status == 200)
+                {
+                                // $scope.loggedIn = true;
+
+                    //Forward to profile
+                    $location.path('/');
+                }
+
+            }, function(err){ console.log("FAILED TO CREATE");})
     }
 })
-.controller('LandingPageCtrl', function($scope)
+.controller('LandingPageCtrl', function($scope, $http)
 {
 
-	$scope.events = ["math", "bees", "yo", "bad", "cool"];
+	// $scope.events = ["math", "bees", "yo", "bad", "cool"];
 
-    console.log("events");
-    /* Slice the images to a grid */
-            function chunk(arr, size) {
+    $scope.events = [];
+    $scope.tracks = [];
+
+    var request = {
+
+        url: 'http://104.131.167.77:3000/event',
+        method: 'GET'
+    }
+
+    $http(request)
+    .then(function(response)
+    {
+            console.log(response);
+            if(response.status == 200 || response.status == 201)
+            {
+                $scope.events = response.data.events;
+                console.log($scope.events);
+
+                  function chunk(arr, size) {
                 var row = [];
                 for (var i=0; i<arr.length; i+=size) {
                     row.push(arr.slice(i, i+size));
@@ -115,6 +170,12 @@ angular.module('scholastic-competition', ['ngRoute'])
             }
 
             $scope.tracks = chunk($scope.events,3);
+            }
+    }, function(err){ console.log(err);})
+
+    console.log("events");
+    /* Slice the images to a grid */
+          
 })
 
 .controller('TeacherRegistrationCtrl', function($scope, $http, $location)
