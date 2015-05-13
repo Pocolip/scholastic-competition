@@ -11,15 +11,10 @@ angular.module('scholastic-competition', ['ngRoute'])
 
  $routeProvider
 
-            // setup an abstract state for the tabs directive
-            // .state('home', {
-            //     url: "/",
-            //     abstract: true,
-            //     templateUrl: "app/tabs.html"
-            // })
+         
                 .when('/', {
-                templateUrl : 'templates/teacher.registration.html',
-                controller  : 'TeacherRegistrationCtrl'
+                templateUrl : 'templates/landingpage.html',
+                controller  : 'LandingPageCtrl'
             })
 
                 .when('/teacher', {
@@ -51,6 +46,18 @@ angular.module('scholastic-competition', ['ngRoute'])
                     templateUrl: 'templates/events.html',
                     controller: 'TracksCtrl'
                 })
+
+                .when('/ranking', {
+
+                    templateUrl: 'templates/ranking.html',
+                    controller: 'RankedCtrl'
+                })
+
+                .when('/teacherProfile', {
+
+                    templateUrl: 'templates/teacher.profile.html',
+                    controller: 'TeacherProfileCtrl'
+                });
 
 
             // route for the about page
@@ -95,17 +102,28 @@ angular.module('scholastic-competition', ['ngRoute'])
 .controller('LandingPageCtrl', function($scope)
 {
 
-	
+	$scope.events = ["math", "bees", "yo", "bad", "cool"];
+
+    console.log("events");
+    /* Slice the images to a grid */
+            function chunk(arr, size) {
+                var row = [];
+                for (var i=0; i<arr.length; i+=size) {
+                    row.push(arr.slice(i, i+size));
+                }
+                return row;
+            }
+
+            $scope.tracks = chunk($scope.events,3);
 })
 
-.controller('TeacherRegistrationCtrl', function($scope, $http)
+.controller('TeacherRegistrationCtrl', function($scope, $http, $location)
 {
 	//First Name
 	//Last Name
 	//Schools
 	//Password
 	//Email
-	console.log("Dancing");
 
 
 	$scope.firstName = "";
@@ -122,11 +140,11 @@ angular.module('scholastic-competition', ['ngRoute'])
 
             var data = {
 
-                first_name: $scope.firstName,
-                last_name: $scope.lastName,
+                firstName: $scope.firstName,
+                lastName: $scope.lastName,
                 password: $scope.password,
-                email: $scope.email,
-                school: $scope.school
+                email: $scope.email
+                // school: $scope.school
             }
             var request = {
 
@@ -142,10 +160,12 @@ angular.module('scholastic-competition', ['ngRoute'])
             {   
                 console.log(response);
 
-                if(response.status == 200)
+                if(response.status == 201 || response.status == 200)
                 {
+                                $scope.loggedIn = true;
+
                     //Forward to profile
-                    console.log("Forwading to profile");
+                    $location.path('teacherProfile');
                 }
 
             }, function(err){ console.log("FAILED TO CREATE");})
